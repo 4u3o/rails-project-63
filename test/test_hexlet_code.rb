@@ -7,7 +7,31 @@ class TestHexletCode < Minitest::Test
     refute_nil ::HexletCode::VERSION
   end
 
-  def test_it_does_something_useful
-    assert false
+  def test_that_build_returns_single_tag
+    expected = "<br>"
+    result = HexletCode::Tag.build("br")
+
+    assert_equal expected, result
+  end
+
+  def test_that_build_returns_single_tag_with_attrs
+    expected = "<img src=\"path/to/image\">"
+    result = HexletCode::Tag.build("img", src: "path/to/image")
+
+    assert_equal expected, result
+  end
+
+  def test_that_build_returns_tag_with_text
+    expected = "<label for=\"email\">Email</label>"
+    result = HexletCode::Tag.build("label", for: "email") { "Email" }
+
+    assert_equal expected, result
+  end
+
+  def test_that_build_returns_tag_without_attrs_and_text
+    expected = "<div></div>"
+    result = HexletCode::Tag.build("div")
+
+    assert_equal expected, result
   end
 end

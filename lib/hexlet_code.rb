@@ -3,6 +3,7 @@
 require_relative "hexlet_code/version"
 
 module HexletCode
+  # Tag
   class Tag
     SINGLE_TAGS = %w[br hr input img].freeze
 
