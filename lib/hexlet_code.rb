@@ -47,8 +47,8 @@ module HexletCode
     "#{opening}#{content}#{closing_delimiter}#{closing}"
   end
 
-  def self.form_for(obj, url: "#", method: "post", &block)
-    form = Form.new(obj, action: url, method:, &block)
+  def self.form_for(obj, url: "#", method: "post", **attrs, &block)
+    form = Form.new(obj, action: url, method:, **attrs, &block)
     to_html(form)
   end
 end
