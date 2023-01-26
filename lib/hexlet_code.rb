@@ -1,54 +1,54 @@
 # frozen_string_literal: true
 
 require_relative "hexlet_code/version"
+require_relative "hexlet_code/form"
 
-# Hexlet homework.
+# Hexlet form generator.
 module HexletCode
-  User = Struct.new(:name, :job, :gender, keyword_init: true)
-  Form = Struct.new("Form", :for_obj, :opening_tag, :content, :closing_tag) do |_|
-    def to_s
-      opening_tag + content + closing_tag
-    end
-
-    def input(name, type: "text", cols: "20", rows: "40", **attrs)
-      value = for_obj.public_send(name)
-
-      self.content += (
-        if attrs[:as] == :text
-          Tag.build("textarea", name:, cols:, rows:) do
-            value
-          end
-        else
-          Tag.build("input", name:, type:, value:, **attrs)
-        end
-      )
-    end
-  end
-
   # Tag generates html tags.
   module Tag
     SINGLE_TAGS = %w[br hr input img].freeze
 
-    def self.create(tag_name, **attrs, &block)
-      attrs_str = attrs.each_with_object([]) do |(k, v), acc|
-        acc << " #{k}=\"#{v}\""
+    def self.build_attributes(attrs)
+      attrs.each_with_object([]) do |(k, v), acc|
+        acc << " #{k}=\"#{v}\"" unless v.nil?
       end.join
+    end
 
-      opening_tag = "<#{tag_name}#{attrs_str}>"
-      content = block_given? ? block.call : ""
-      closing_tag = SINGLE_TAGS.include?(tag_name) ? "" : "</#{tag_name}>"
+    def self.create_opening_tag(tag_name, **attrs)
+      "<#{tag_name}#{build_attributes(attrs)}>"
+    end
 
-      [opening_tag, content, closing_tag]
+    def self.create_content(&block)
+      block_given? ? block.call : ""
+    end
+
+    def self.create_closing_tag(tag_name)
+      SINGLE_TAGS.include?(tag_name) ? "" : "</#{tag_name}>"
     end
 
     def self.build(tag_name, **attrs, &block)
-      create(tag_name, **attrs, &block).join
+      [
+        create_opening_tag(tag_name, **attrs),
+        create_content(&block),
+        create_closing_tag(tag_name)
+      ].join
     end
   end
 
+  def self.to_html(form)
+    opening = Tag.create_opening_tag(form.tag, **form.attrs)
+    content = form.content.map do |elem|
+      "\n  #{Tag.build(elem.tag, **elem.attrs) { elem.content }}"
+    end.join
+    closing_delimiter = (form.content.any? ? "\n" : "")
+    closing = Tag.create_closing_tag(form.tag)
+
+    "#{opening}#{content}#{closing_delimiter}#{closing}"
+  end
+
   def self.form_for(obj, url: "#", method: "post", &block)
-    form = Form.new(obj, *Tag.create("form", action: url, method:))
-    block.call(form)
-    form.to_s
+    form = Form.new(obj, action: url, method:, &block)
+    to_html(form)
   end
 end

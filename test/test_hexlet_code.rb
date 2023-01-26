@@ -2,9 +2,11 @@
 
 require "test_helper"
 
+User = Struct.new(:name, :job, :gender, keyword_init: true)
+
 class TestHexletCode < Minitest::Test
   def setup
-    @user = HexletCode::User.new name: "rob", job: "hexlet"
+    @user = User.new name: "rob", job: "hexlet"
   end
 
   def test_that_build_returns_single_tag
@@ -38,7 +40,7 @@ class TestHexletCode < Minitest::Test
   def test_that_form_for_returns_form
     expected = "<form action=\"#\" method=\"post\"></form>"
 
-    result = HexletCode.form_for @user do |f|
+    result = HexletCode.form_for @user do |_|
     end
 
     assert_equal expected, result
@@ -46,8 +48,7 @@ class TestHexletCode < Minitest::Test
 
   def test_that_form_for_returns_form_with_action
     expected = "<form action=\"/users\" method=\"post\"></form>"
-
-    result = HexletCode.form_for @user, url: "/users" do |f|
+    result = HexletCode.form_for @user, url: "/users" do |_|
     end
 
     assert_equal expected, result
@@ -82,13 +83,53 @@ class TestHexletCode < Minitest::Test
     assert_equal expected, result
   end
 
+  def test_that_inputs_value_with_nil_dont_show
+    fixture = File.new(
+      "#{__dir__}/fixtures/form_with_nil_value_input.html"
+    )
+    expected = fixture.read
+    fixture.close
+
+    result = HexletCode.form_for @user do |f|
+      f.input :gender
+    end
+
+    assert_equal expected, result
+  end
+
   def test_that_form_raise_error_if_user_didnt_have_attr
-    assert_raises NameError do
+    assert_raises NoMethodError do
       HexletCode.form_for @user, url: "/users" do |f|
         f.input :name
         f.input :job, as: :text
         f.input :age
       end
     end
+  end
+
+  def test_submit_with_default_value
+    fixture = File.new(
+      "#{__dir__}/fixtures/form_with_submit_button.html"
+    )
+    expected = fixture.read
+    fixture.close
+
+    result = HexletCode.form_for @user, &:submit
+
+    assert_equal expected, result
+  end
+
+  def test_submit_with_custom_value
+    fixture = File.new(
+      "#{__dir__}/fixtures/form_with_custom_submit_button.html"
+    )
+    expected = fixture.read
+    fixture.close
+
+    result = HexletCode.form_for @user do |f|
+      f.submit "wow"
+    end
+
+    assert_equal expected, result
   end
 end
