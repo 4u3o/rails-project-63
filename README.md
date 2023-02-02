@@ -39,3 +39,10 @@ end
 ```txt
 undefined method `age' for #<struct User name="Petr", job=nil, gender="Alpha-male"> (NoMethodError)
 ```
+
+# Разработка
+
+Команды:
+ - `make install` - установить зависимости
+ - `make test` - запустить тесты
+ - `make lint` - запустить линтер
