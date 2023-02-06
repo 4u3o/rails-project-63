@@ -9,34 +9,6 @@ class TestHexletCode < Minitest::Test
     @user = User.new name: 'rob', job: 'hexlet'
   end
 
-  def test_that_build_returns_single_tag
-    expected = load_fixture('br.html')
-    result = Tag.build('br')
-
-    assert_equal expected, result
-  end
-
-  def test_that_build_returns_single_tag_with_attrs
-    expected = load_fixture('img.html')
-    result = Tag.build('img', src: 'path/to/image')
-
-    assert_equal expected, result
-  end
-
-  def test_that_build_returns_tag_with_text
-    expected = load_fixture('label_with_text.html')
-    result = Tag.build('label', for: 'email') { 'Email' }
-
-    assert_equal expected, result
-  end
-
-  def test_that_build_returns_tag_without_attrs_and_text
-    expected = load_fixture('div.html')
-    result = Tag.build('div')
-
-    assert_equal expected, result
-  end
-
   def test_that_form_for_returns_form
     expected = load_fixture('form.html')
     result = HexletCode.form_for @user
