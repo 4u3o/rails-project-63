@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 class Form
-  autoload :LabelElement, 'hexlet_code/elements/label_element'
-  autoload :TextareaElement, 'hexlet_code/elements/textarea_element'
-  autoload :InputElement, 'hexlet_code/elements/input_element'
+  autoload :Elements, 'hexlet_code/elements'
 
   attr_reader :tag, :attrs, :elements
 
@@ -16,22 +14,22 @@ class Form
   end
 
   def input(field_name, as: :input, **attrs)
+    raise 'undefined "as" attribute' unless %i[text input].include? as
+
     value = @obj.public_send(field_name)
 
-    @elements << LabelElement.new(for: field_name) { field_name.capitalize }
-    # Не понимаю как динамически резолвить класс Элемента,
-    # ведь конструкторы принимают разный набор аргументов
-    @elements << case as
-                 when :input
-                   InputElement.new(name: field_name, value:, **attrs)
-                 when :text
-                   TextareaElement.new(name: field_name, **attrs) { value }
-                 else
-                   raise 'undefined "as" parameter for input'
-                 end
+    @elements << Elements::LabelElement.new(field_name.capitalize, for: field_name)
+    @elements << Elements.const_get("#{as.capitalize}Element")
+                         .new(value, name: field_name, **attrs)
   end
 
   def submit(value = 'Save', **attrs)
-    @elements << InputElement.new(type: 'submit', value:, **attrs)
+    @elements << Elements::InputElement.new(value, type: 'submit', **attrs)
+  end
+
+  def to_html
+    Tag.build(@tag, **attrs) do
+      elements.map(&:to_html).join
+    end
   end
 end
