@@ -2,6 +2,7 @@
 
 class Form
   autoload :Elements, 'hexlet_code/elements'
+  autoload :Tag, 'hexlet_code/tag'
 
   attr_reader :tag, :attrs, :elements
 
